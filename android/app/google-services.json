@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "879408486345",
+    "project_id": "fir-shoppacart",
+    "storage_bucket": "fir-shoppacart.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:879408486345:android:eff980fec2dfaeb7cf7a18",
+        "android_client_info": {
+          "package_name": "com.example.firebase_shoppacart"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCNP4_VQqzRr28DFQCvgJFhhPdeEcms4y0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
