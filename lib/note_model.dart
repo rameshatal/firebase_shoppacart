@@ -1,21 +1,20 @@
 class NoteModel {
   String? body;
-  int? id;
+  String? id;
   String? title;
 
   NoteModel({this.body, this.title, this.id});
 
-
-  factory NoteModel.fromJson(Map<String, dynamic> json){
+  factory NoteModel.fromJson(Map<String, dynamic> json) {
     return NoteModel(
       body: json['body'],
       title: json['title'],
     );
   }
 
-  Map<String, dynamic> toJson(){
+  Map<String, dynamic> toJson() {
     return {
-      "body" : body,
+      "body": body,
       "title": title,
     };
   }

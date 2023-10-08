@@ -1,36 +1,39 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_shoppacart/user_page.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
 import 'firebase_options.dart';
 import 'note_model.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: HomePage(),
+      home: UserPage(),
     );
   }
 }
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  String id;
+
+  HomePage({required this.id});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -45,112 +48,169 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     db = FirebaseFirestore.instance;
-
-
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Notes"),
+        title: Text('Notes'),
       ),
       body: StreamBuilder(
-        stream: db.collection("Notes").snapshots(),
-        builder: (_,snapshot){
-          if(snapshot.connectionState==ConnectionState.waiting){
-            return Center(child: CircularProgressIndicator(),);
-          }else if(snapshot.hasError){
-            return Center(child: Text("${snapshot.hasError.toString()}"),);
-          }else if(snapshot.hasData){
+        stream: db
+            .collection("users")
+            .doc(widget.id)
+            .collection("notes")
+            .snapshots(),
+        builder: (_, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (snapshot.hasError) {
+          } else if (snapshot.hasData) {
             return ListView.builder(
                 itemCount: snapshot.data!.docs.length,
-                itemBuilder: (_,index){
-                  var model = NoteModel.fromJson(snapshot.data!.docs[index].data());
+                itemBuilder: (_, index) {
+                  var model =
+                      NoteModel.fromJson(snapshot.data!.docs[index].data());
+                  model.id = snapshot.data!.docs[index].id;
+                  print("id: ${model.id}");
                   return InkWell(
-                    onTap: (){
+                    onTap: () {
+                      showModalBottomSheet(
+                          context: context,
+                          builder: (_) {
+                            print(MediaQuery.of(context).viewInsets.bottom);
+                            titleController.text = model.title!;
+                            bodyController.text = model.body!;
+                            return Container(
+                              height:
+                                  MediaQuery.of(context).viewInsets.bottom ==
+                                          0.0
+                                      ? 400
+                                      : 800,
+                              color: Colors.blue.shade100,
+                              child: Column(
+                                children: [
+                                  Text('Add Note'),
+                                  TextField(
+                                    controller: titleController,
+                                    onTap: () {},
+                                    decoration: InputDecoration(
+                                        label: Text('Title'),
+                                        hintText: "Enter title here..",
+                                        border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(21))),
+                                  ),
+                                  TextField(
+                                    controller: bodyController,
+                                    decoration: InputDecoration(
+                                        label: Text('Body'),
+                                        hintText: "Write Desc here..",
+                                        border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(21))),
+                                  ),
+                                  ElevatedButton(
+                                      onPressed: () {
+                                        //update
 
+                                        db
+                                            .collection("notes")
+                                            .doc(model.id)
+                                            .set(NoteModel(
+                                                    title: titleController.text
+                                                        .toString(),
+                                                    body: bodyController.text
+                                                        .toString())
+                                                .toJson())
+                                            .then((value) {});
+                                      },
+                                      child: Text('Update'))
+                                ],
+                              ),
+                            );
+                          });
                     },
                     child: ListTile(
-                      title: Text("${model.title}"),
-                      subtitle: Text("${model.body}"),
+                      title: Text('${model.title}'),
+                      subtitle: Text('${model.body}'),
                       trailing: InkWell(
-                          onTap: (){
-                            ///delete
-
-
+                          onTap: () {
+                            //delete
+                            db
+                                .collection("notes")
+                                .doc(model.id)
+                                .delete()
+                                .then((value) => print("${model.id} deleted"));
                           },
                           child: Icon(Icons.delete)),
                     ),
                   );
                 });
           }
+
           return Container();
         },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-/*
-          db.collection("Students").add({
-            "name": "Ramesh",
-            "class":"X",
-            "rollno":"23"
+          //add
+          /*db.collection("students").add({
+            "name": "Rajveer",
+            "class": "X",
+            "rollno": 12345
           }).then((value){
             print(value.id);
+
           });*/
 
           showModalBottomSheet(
               context: context,
               builder: (_) {
+                print(MediaQuery.of(context).viewInsets.bottom);
                 return Container(
-                  height: MediaQuery.of(context).viewInsets.bottom==0.0 ? 400 : 800,
+                  height: MediaQuery.of(context).viewInsets.bottom == 0.0
+                      ? 400
+                      : 800,
                   color: Colors.blue.shade100,
                   child: Column(
                     children: [
-                      Text("Add Note"),
+                      Text('Add Note'),
                       TextField(
                         controller: titleController,
-                        onTap: (){
-
-                        },
+                        onTap: () {},
                         decoration: InputDecoration(
-                            hintText: "Enter title here",
-                            label: Text("Title"),
+                            label: Text('Title'),
+                            hintText: "Enter title here..",
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(21),
-                            )),
-                      ),
-                      SizedBox(
-                        height: 11,
+                                borderRadius: BorderRadius.circular(21))),
                       ),
                       TextField(
                         controller: bodyController,
                         decoration: InputDecoration(
-                          hintText: "Enter desc here",
-                          label: Text("Body"),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(21),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 11,
+                            label: Text('Body'),
+                            hintText: "Write Desc here..",
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(21))),
                       ),
                       ElevatedButton(
                           onPressed: () {
                             db
-                                .collection("Notes")
-                                .doc("3OqGPrdHsCRliXFFFVod")
-                                .collection("subNotes")
+                                .collection("users")
+                                .doc(widget.id)
+                                .collection("notes")
                                 .add(NoteModel(
-                                title: titleController.text.toString(),
-                                body: bodyController.text.toString())
-                                .toJson())
+                                        title: titleController.text.toString(),
+                                        body: bodyController.text.toString())
+                                    .toJson())
                                 .then((value) {
                               print(value.id);
                             });
                           },
-                          child: Text("Submit"))
+                          child: Text('Submit'))
                     ],
                   ),
                 );
@@ -161,26 +221,28 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-// FutureBuilder(
-// future: db.collection('Notes').get(),
-// builder: (_, snapshot) {
-// if (snapshot.connectionState == ConnectionState.waiting) {
-// return Center(
-// child: CircularProgressIndicator(),
-// );
-// } else if (snapshot.hasError) {
-// } else if (snapshot.hasData) {
-// return ListView.builder(
-// itemCount: snapshot.data!.docs.length,
-// itemBuilder: (_, index) {
-// var model =
-// NoteModel.fromJson(snapshot.data!.docs[index].data());
-// return ListTile(
-// title: Text("${model.title}"),
-// subtitle: Text("${model.body}"),
-// );
-// });
-// }
-// return Container();
-// },
-// )
+
+//FutureBuilder(
+//         future: db.collection("notes").get(),
+//         builder: (_, snapshot) {
+//           if (snapshot.connectionState == ConnectionState.waiting) {
+//             return Center(
+//               child: CircularProgressIndicator(),
+//             );
+//           } else if (snapshot.hasError) {
+//           } else if (snapshot.hasData) {
+//             return ListView.builder(
+//                 itemCount: snapshot.data!.docs.length,
+//                 itemBuilder: (_, index) {
+//                   var model =
+//                       NoteModel.fromJson(snapshot.data!.docs[index].data());
+//                   return ListTile(
+//                     title: Text('${model.title}'),
+//                     subtitle: Text('${model.body}'),
+//                   );
+//                 });
+//           }
+//
+//           return Container();
+//         },
+//       ),
