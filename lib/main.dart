@@ -20,6 +20,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
@@ -159,9 +160,9 @@ class _HomePageState extends State<HomePage> {
         onPressed: () {
           //add
           /*db.collection("students").add({
-            "name": "Rajveer",
+            "name": "Ramesh",
             "class": "X",
-            "rollno": 12345
+            "rollno": 1235
           }).then((value){
             print(value.id);
 
@@ -188,6 +189,7 @@ class _HomePageState extends State<HomePage> {
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(21))),
                       ),
+                      SizedBox(height: 11,),
                       TextField(
                         controller: bodyController,
                         decoration: InputDecoration(
@@ -196,6 +198,7 @@ class _HomePageState extends State<HomePage> {
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(21))),
                       ),
+                      SizedBox(height: 21,),
                       ElevatedButton(
                           onPressed: () {
                             db

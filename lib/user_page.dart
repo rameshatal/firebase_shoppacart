@@ -92,6 +92,7 @@ class _UserPageState extends State<UserPage> {
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(21))),
                       ),
+                      SizedBox(height: 11,),
                       TextField(
                         controller: emailController,
                         decoration: InputDecoration(
@@ -100,6 +101,7 @@ class _UserPageState extends State<UserPage> {
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(21))),
                       ),
+                      SizedBox(height: 11,),
                       TextField(
                         controller: ageController,
                         onTap: () {},
@@ -109,6 +111,7 @@ class _UserPageState extends State<UserPage> {
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(21))),
                       ),
+                      SizedBox(height: 21,),
                       ElevatedButton(
                           onPressed: () {
                             db
